@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 class Train {
@@ -19,31 +18,14 @@ class Train {
         wagons = new ArrayList<>();
         passengers = new ArrayList<>();
     }
-    public String getTrainName() {
-        return trainName;
-    }
-
-    public String getDeparturePlace() {
-        return departurePlace;
-    }
-
-    public String getArrivalPlace() {return arrivalPlace;}
-
-    public String getDepartureTime() {
-        return departureTime;
-    }
-
-    public String getArrivalTime() {
-        return arrivalTime;
-    }
     public void addWagon(Wagon wagon) {
         wagons.add(wagon);
     }
     public void addPassenger(Passenger passenger) {
         passengers.add(passenger);
     }
-    public void removePassenger(Passenger passenger) {
-        passengers.remove(passenger);
+    public String toString(){
+        return "Train1 - " + trainName + ":" + departurePlace + " -> " + arrivalPlace + " - " + departureTime + " -> " + arrivalTime;
     }
 }
 class Wagon {
@@ -70,18 +52,21 @@ class Wagon {
     public double getPriceForSit() {
         return priceForSit;
     }
+
 }
 
-class Passenger extends Wagon{
+class Passenger{
     String name;
     int age;
     boolean disability;
+    String typeOfWagon;
 
-    public Passenger(String name, int age, boolean disability) {
+    public Passenger(String name, int age, boolean disability, String typeOfWagon) {
         super();
         this.name = name;
         this.age = age;
         this.disability = disability;
+        this.typeOfWagon = typeOfWagon;
     }
     public String getName() {
         return name;
@@ -107,6 +92,9 @@ class Passenger extends Wagon{
         this.disability = disability;
     }
 
+    public String getTypeOfWagon() {return typeOfWagon;}
+
+    public void setTypeOfWagon(String typeOfWagon) {this.typeOfWagon = typeOfWagon;}
 }
 
 class Main{
@@ -117,11 +105,13 @@ class Main{
                 System.out.println("Name: " + p.getName());
                 System.out.println("Age: " + p.getAge());
                 System.out.println("Disability: " + p.getDisability());
+                System.out.println("Type of wagon: " + p.getTypeOfWagon());
                 break;
             }
         }
     }
     //remove passenger
+/*
     public static void findPassengerToRemove(Train tr, String nameDel) {
         boolean removed = false;
         for (Iterator<Passenger> iterator = tr.passengers.iterator(); iterator.hasNext();) {
@@ -135,7 +125,20 @@ class Main{
             System.out.println("Removed!");
         }
     }
+ */
 
+    public static void findPassengerToRemove(Train tr, String nameDel) {
+        boolean remove = false;
+        for(Passenger p: tr.passengers){
+            if(Objects.equals(nameDel, p.name)){
+                p.name = "null";
+                remove = true;
+            }
+        }
+        if(remove){
+            System.out.println("Removed");
+        }
+    }
     //Update
     public static void findPassengerToUpdate(Train tr, String name, String newName, int newAge, boolean newDisability) {
         boolean updated = false;
@@ -155,16 +158,21 @@ class Main{
     //Output information about allPassengers
     public static void printPassengerList(Train tr) {
         for (Passenger p : tr.passengers) {
-            System.out.println("Name: " + p.getName() + ", Age: " + p.getAge() + ", Disability: " + p.getDisability());
+            if(p.name.equals("null")) {
+                continue;
+            }
+            else{
+                System.out.println("Name: " + p.getName() + ", Age: " + p.getAge() + ", Disability: " + p.getDisability()  + ", Wagon class: " + p.getTypeOfWagon());
+            }
         }
     }
 
     //output wagon's inforamtion
     public static void outputWagons(Train tr){
         for(Wagon w : tr.wagons){
-            System.out.println("Class Type: " + w.getClassType());
-            System.out.println("Capacity: " + w.getCapacity());
-            System.out.println("Price per seat: " + w.getPriceForSit());
+            System.out.print("Class Type: " + w.getClassType());
+            System.out.print(", Capacity: " + w.getCapacity());
+            System.out.println(", Price per seat: " + w.getPriceForSit());
         }
     }
 
@@ -179,7 +187,28 @@ class Main{
         System.out.println("Disability true/false: ");
         boolean disability = sc.nextBoolean();
 
-        tr.addPassenger(new Passenger(name, age, disability));
+        System.out.println("Choose class:");
+        int i=1;
+        for (Wagon w : tr.wagons)
+        {
+            System.out.println(i+" - "+ w.getClassType()+" - "+w.getPriceForSit());
+            i++;
+        }
+        String typeOfWagon = null;
+        int ch = sc.nextInt();
+        switch (ch){
+            case 1 -> {
+                typeOfWagon = "Economy class";
+            }
+            case 2 -> {
+                typeOfWagon = "Business class";
+            }
+            case 3 -> {
+                typeOfWagon = "First class";
+            }
+        }
+
+        tr.addPassenger(new Passenger(name, age, disability, typeOfWagon));
     }
     public static void main(String[] args) {
         Train tr1 = new Train("Baiterek", "Astana", "12:30", "Almaty", "20:00");
@@ -198,6 +227,7 @@ class Main{
         tr3.addWagon(new Wagon("First", 15, 13000));
 
         Scanner sc = new Scanner(System.in);
+
         while (true) {
             System.out.print("""
                     1: Create
@@ -207,6 +237,7 @@ class Main{
                     5: Info
                     """);
             int choice1 = sc.nextInt();
+            if(choice1 < 1 || choice1 > 5){break;}
             switch (choice1) {
                 case 1 -> {
                     System.out.print("""
@@ -218,10 +249,11 @@ class Main{
                     int ch = sc.nextInt();
                     if (ch == 1) {
                         selectTrain(tr1, sc);
-                    } else if (ch == 2) {
+                    }
+                    else if (ch == 2) {
                         selectTrain(tr2, sc);
                     }
-                    if (ch == 3) {
+                    else if (ch == 3) {
                         selectTrain(tr3, sc);
                     }
                 }
@@ -241,6 +273,7 @@ class Main{
                     int newAge = sc.nextInt();
                     System.out.println("Disability true/false: ");
                     boolean newDisability = sc.nextBoolean();
+
                     findPassengerToUpdate(tr1, name, newName, newAge, newDisability);
                     findPassengerToUpdate(tr2, name, newName, newAge, newDisability);
                     findPassengerToUpdate(tr3, name, newName, newAge, newDisability);
@@ -271,21 +304,20 @@ class Main{
                         printPassengerList(tr3);
                     }
                     else if(ch==1){
-                        System.out.println("Train1 - " + tr1.getTrainName() + ":" + tr1.getDeparturePlace() + " -> " + tr1.getArrivalPlace() + " - " + tr1.getDepartureTime() + " -> " + tr1.getArrivalTime());
+                        System.out.println(tr1);
                         outputWagons(tr1);
                         System.out.println();
 
-                        System.out.println("Train2 - " + tr2.getTrainName() + ":" + tr2.getDeparturePlace() + " -> " + tr2.getArrivalPlace() + " - " + tr2.getDepartureTime() + " -> " + tr2.getArrivalTime());
+                        System.out.println(tr2);
                         outputWagons(tr2);
                         System.out.println();
 
-                        System.out.println("Train3 - " + tr3.getTrainName() + ":" + tr3.getDeparturePlace() + " -> " + tr3.getArrivalPlace() + " - " + tr3.getDepartureTime() + " -> " + tr3.getArrivalTime());
+                        System.out.println(tr3);
                         outputWagons(tr3);
+                        System.out.println();
                     }
-
                 }
             }
         }
     }
 }
-
